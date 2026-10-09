@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-expand-vote-id-for-uuid
+      author: voting-service
+      changes:
+        - modifyDataType:
+            tableName: voting_session
+            columnName: id
+            newDataType: VARCHAR(36)
+        - modifyDataType:
+            tableName: ballot
+            columnName: voting_session_id
+            newDataType: VARCHAR(36)

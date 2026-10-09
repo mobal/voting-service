@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-voting-session
+      author: voting-service
+      changes:
+        - createTable:
+            tableName: voting_session
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(32)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_voting_session
+                    nullable: false
+              - column:
+                  name: vote_timestamp
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: subject_text
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vote_type
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: procedure_code
+                  type: VARCHAR(1)
+              - column:
+                  name: chairperson_code
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: voting_session
+            columnNames: vote_timestamp
+            constraintName: uk_voting_session_timestamp
+
+  - changeSet:
+      id: 002-create-ballot
+      author: voting-service
+      changes:
+        - createTable:
+            tableName: ballot
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_ballot
+                    nullable: false
+              - column:
+                  name: voting_session_id
+                  type: VARCHAR(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: representative_code
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: choice_code
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: ballot
+            baseColumnNames: voting_session_id
+            referencedTableName: voting_session
+            referencedColumnNames: id
+            constraintName: fk_ballot_voting_session
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            tableName: ballot
+            columnNames: voting_session_id, representative_code
+            constraintName: uk_ballot_session_representative
+        - createIndex:
+            tableName: ballot
+            indexName: idx_ballot_voting_session_id
+            columns:
+              - column:
+                  name: voting_session_id

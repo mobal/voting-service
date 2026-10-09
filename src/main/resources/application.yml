@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: voting-service
+
+  datasource:
+    url: jdbc:h2:mem:voting;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false

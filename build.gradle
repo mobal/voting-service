@@ -1,0 +1,94 @@
+plugins {
+    id 'jacoco'
+    id 'java'
+    id 'com.diffplug.spotless' version '8.10.3'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'hu.gov.parliament'
+version = '0.0.1-SNAPSHOT'
+
+description = 'Parliamentary voting REST API'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-jackson'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-liquibase'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    runtimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-resttestclient'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn tasks.named('test')
+    reports {
+        csv.required.set(false)
+        xml.required.set(false)
+        html.required.set(true)
+    }
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn tasks.named('test')
+    violationRules {
+        rule {
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'app.jar'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('spotlessCheck')
+    dependsOn tasks.named('jacocoTestCoverageVerification')
+}
+
+tasks.register('dockerBuild', Exec) {
+    group = 'docker'
+    description = 'Builds a Docker image for the application.'
+    commandLine 'docker', 'build', '-t', "${project.name}:${project.version}", '.'
+}

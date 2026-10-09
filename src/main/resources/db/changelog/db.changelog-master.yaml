@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/001-create-voting-schema.yaml
+  - include:
+      file: db/changelog/003-expand-vote-id-for-uuid.yaml
